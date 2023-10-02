@@ -1,0 +1,7 @@
+{
+  "addresses": {
+    "ERC20Mock": "0xb2711a619Ab539dc8DcAF6905cBbA625339e5e27",
+    "ERC20MockStrategy": "0xD22243fb858e091673206B46fd5ed151104A6d5e",
+    "ERC20MockStrategyImplementation": "0xC36B00d69EBD9fde3e6603089c7dA2fFF24Cf6Da"
+  }
+}
