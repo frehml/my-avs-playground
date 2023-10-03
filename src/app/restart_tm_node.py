@@ -4,6 +4,7 @@ import subprocess
 import toml
 import os 
 import json
+import hupper
 from web3 import Web3
 
 thisdir = pathlib.Path(__file__).resolve().parent
@@ -19,45 +20,48 @@ else:
     ENDPOINT = "*"
 
 def setup_contract():
-    addresspath = thisdir.parent.joinpath("script", "output", "5", "playground_avs_deployment_output.json")
-    if not addresspath.exists():
-        raise FileNotFoundError(f"{addresspath} does not exist!")
-    
-    with open(addresspath, 'r') as f:
-        address = json.load(f)
+    pass
+    #addresspath = thisdir.parent.joinpath("script", "output", "5", "playground_avs_deployment_output.json")
+    #if not addresspath.exists():
+    #    raise FileNotFoundError(f"{addresspath} does not exist!")
+    #
+    #with open(addresspath, 'r') as f:
+    #    address = json.load(f)
+#
+    #if 'addresses' in address and 'registryCoordinator' in address['addresses']:
+    #    address = address['addresses']['registryCoordinator']
+    #else:
+    #    raise KeyError("Key 'addresses' or 'registryCoordinator' not found in the JSON file!")
+    #
+#
+    #abipath = thisdir.parent.joinpath("out", "BLSRegistryCoordinatorWithIndices.sol", "BLSRegistryCoordinatorWithIndices.json")
+    #if not abipath.exists():
+    #    raise FileNotFoundError(f"{abipath} does not exist!")
+    #
+    #with open(abipath, 'r') as f:
+    #    abi = json.load(f)
+#
+    #if 'abi' in abi:
+    #    abi = abi['abi']
+    #else:
+    #    raise KeyError("Key 'abi' not found in the JSON file!")
+    #
+    #return w3.eth.contract(address=address, abi=abi)
 
-    if 'addresses' in address and 'registryCoordinator' in address['addresses']:
-        address = address['addresses']['registryCoordinator']
-    else:
-        raise KeyError("Key 'addresses' or 'registryCoordinator' not found in the JSON file!")
-    
-
-    abipath = thisdir.parent.joinpath("out", "BLSRegistryCoordinatorWithIndices.sol", "BLSRegistryCoordinatorWithIndices.json")
-    if not abipath.exists():
-        raise FileNotFoundError(f"{abipath} does not exist!")
-    
-    with open(abipath, 'r') as f:
-        abi = json.load(f)
-
-    if 'abi' in abi:
-        abi = abi['abi']
-    else:
-        raise KeyError("Key 'abi' not found in the JSON file!")
-    
-    return w3.eth.contract(address=address, abi=abi)
+# Check if we're running inside a live-reloading environment
+if not hupper.is_active():
+    # If not, start a live-reloading monitor and re-execute the current script
+    reloader = hupper.start_reloader('restart_tm_node.main')
 
 def main():
     tendermint = home.joinpath(".tendermint")
-    contract = setup_contract()
+    #contract = setup_contract()
 
-    print(contract.functions.operatorList().call())
     if tendermint.exists():
         shutil.rmtree(tendermint)
 
     subprocess.Popen(["tendermint", "init"]).wait()
     
-
-
     config_path = tendermint.joinpath("config", "config.toml")
     config = toml.loads(config_path.read_text())
     config["rpc"]["cors_allowed_origins"] = [ENDPOINT]

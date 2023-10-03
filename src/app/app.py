@@ -34,6 +34,7 @@ from tendermint.abci.types_pb2 import (
 from abci.server import ABCIServer
 from abci.application import BaseApplication, OkCode, ErrorCode 
 
+import hupper
 import json 
 import pathlib 
 from hashlib import sha256
@@ -71,10 +72,6 @@ class SimpleCounter(BaseApplication):
         These checks should also be re-performed in deliver_tx.
         This method should not modify application state.
         """
-        try:
-            key, value, timestamp = tx.decode("utf-8").split("=")
-        except Exception as e:
-            return ResponseCheckTx(code=ErrorCode, log=f"Exception: {e}")
         return ResponseCheckTx(code=OkCode)
     
     def handle_validator_tx(self, tx_decoded) -> ResponseDeliverTx:
@@ -87,6 +84,7 @@ class SimpleCounter(BaseApplication):
         if True:
             # Add the public key as a validator
             #self.add_validator(public_key)
+            print("succes ay")
             print(public_key)
             return ResponseDeliverTx(code=OkCode)
         else:
@@ -128,6 +126,10 @@ class SimpleCounter(BaseApplication):
         thisdir.joinpath("state.json").write_text(json_str)
         return ResponseCommit(data=sha256(json_str.encode("utf-8")).digest())
 
+# Check if we're running inside a live-reloading environment
+if not hupper.is_active():
+    # If not, start a live-reloading monitor and re-execute the current script
+    reloader = hupper.start_reloader('app.main')
 
 def main():
     app = ABCIServer(app=SimpleCounter())
