@@ -76,6 +76,22 @@ class SimpleCounter(BaseApplication):
         except Exception as e:
             return ResponseCheckTx(code=ErrorCode, log=f"Exception: {e}")
         return ResponseCheckTx(code=OkCode)
+    
+    def handle_validator_tx(self, tx_decoded) -> ResponseDeliverTx:
+        parts = tx_decoded.split("&")
+        public_key = parts[0].split("=")[1]
+
+        # Handle checking
+            
+        # Assuming the API returns a JSON response with a 'status' field
+        if True:
+            # Add the public key as a validator
+            #self.add_validator(public_key)
+            print(public_key)
+            return ResponseDeliverTx(code=OkCode)
+        else:
+            return ResponseDeliverTx(code=ErrorCode, log="Not eligible to become a validator")
+
 
     def deliver_tx(self, tx: bytes) -> ResponseDeliverTx:
         """Validate transactions to be committed to blockchain
@@ -83,17 +99,10 @@ class SimpleCounter(BaseApplication):
         Perform all checks, verify transaction is valid, and modify 
         applciation state.
         """
+        tx_decoded = tx.decode("utf-8")
         try:
-            key, value, timestamp = tx.decode("utf-8").split("=")
-            if len(self.data.get(key, {"value": ""})["value"]) >= len(value):
-                return ResponseDeliverTx(
-                    code=ErrorCode, 
-                    log="New values must be longer than the existing value"
-                )
-            self.data[key] = {
-                "value": value,
-                "timestamp": timestamp
-            }
+            if tx_decoded.startswith("validator="):
+                return self.handle_validator_tx(tx_decoded)
         except Exception as e:
             return ResponseDeliverTx(
                 code=ErrorCode,
